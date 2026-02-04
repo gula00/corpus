@@ -8,3 +8,7 @@ edition = "2024"
 [[bin]]
 name = "LinkedList"
 path = "src/LinkedList.rs"
+
+[[bin]]
+name = "traits"
+path = "src/traits.rs"
