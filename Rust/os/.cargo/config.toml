@@ -1,0 +1,12 @@
+[build]
+# Default target for x86_64 bare metal (OS development)
+# target = "x86_64-unknown-none"
+
+# Alternative ARM target for embedded devices
+# target = "thumbv7em-none-eabihf"
+
+# macOS-specific linker flags for freestanding binary
+# On macOS, functions get an extra underscore prefix, so _start becomes __start
+# -static is required because macOS doesn't officially support statically linked binaries
+[target.'cfg(target_os = "macos")']
+rustflags = ["-C", "link-args=-e __start -static -nostartfiles"]

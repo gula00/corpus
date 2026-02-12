@@ -1,0 +1,17 @@
+[package]
+name = "blog_os"
+version = "0.1.0"
+edition = "2021"
+
+# Disable unwinding on panic to avoid the eh_personality language item
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+
+# Prevent rust-analyzer warnings about test/benchmark mode
+[[bin]]
+name = "blog_os"
+test = false
+bench = false
