@@ -1,4 +1,4 @@
-## Antigravity
+## Antigravity-Manager
 
 这是一个专业的 AI 账号管理与协议反代系统，基于 Tauri v2 框架构建的桌面应用。
 

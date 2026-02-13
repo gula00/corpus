@@ -10,6 +10,9 @@ panic = "abort"
 [profile.release]
 panic = "abort"
 
+[dependencies]
+bootloader_api = "0.11"
+
 # Prevent rust-analyzer warnings about test/benchmark mode
 [[bin]]
 name = "blog_os"
