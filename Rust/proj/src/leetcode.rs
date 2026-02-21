@@ -60,7 +60,7 @@ pub fn remove_duplicates_ii(nums: &mut Vec<i32>) -> i32 {
 }
 
 /// 169. Majority Element
-/// Boyer-Moore 投票算法，找出出现次数超过 n/2 的元素
+/// Boyer-Moore 投票算法，找出出现次数超过 n/2 的元素 (打擂台)
 pub fn majority_element(nums: Vec<i32>) -> i32 {
     let mut candidate = 0;
     let mut count = 0;
@@ -181,4 +181,101 @@ pub fn h_index(mut citations: Vec<i32>) -> i32 {
     }
 
     0
+}
+
+use rand::Rng;
+use std::collections::HashMap;
+
+/// 380. Insert Delete GetRandom O(1)
+/// 用数组存值，用哈希表记录每个值在数组中的下标
+pub struct RandomizedSet {
+    nums: Vec<i32>,
+    pos: HashMap<i32, usize>,
+}
+
+impl RandomizedSet {
+    pub fn new() -> Self {
+        Self {
+            nums: Vec::new(),
+            pos: HashMap::new(),
+        }
+    }
+
+    pub fn insert(&mut self, val: i32) -> bool {
+        if self.pos.contains_key(&val) {
+            return false;
+        }
+        let idx = self.nums.len();
+        self.nums.push(val);
+        self.pos.insert(val, idx);
+        true
+    }
+
+    pub fn remove(&mut self, val: i32) -> bool {
+        let Some(&idx) = self.pos.get(&val) else {
+            return false;
+        };
+
+        let last_idx = self.nums.len() - 1;
+        let last_val = self.nums[last_idx];
+        self.nums.swap(idx, last_idx);
+        self.nums.pop();
+        self.pos.remove(&val);
+
+        if idx != last_idx {
+            self.pos.insert(last_val, idx);
+        }
+
+        true
+    }
+
+    pub fn get_random(&self) -> i32 {
+        let mut rng = rand::thread_rng();
+        let idx = rng.gen_range(0..self.nums.len());
+        self.nums[idx]
+    }
+}
+
+/// 238. Product of Array Except Self
+/// 前后缀积：res[i] 先存左侧乘积，再乘上右侧乘积
+pub fn product_except_self(nums: Vec<i32>) -> Vec<i32> {
+    let n = nums.len();
+    let mut res = vec![1; n];
+
+    let mut prefix = 1;
+    for i in 0..n {
+        res[i] = prefix;
+        prefix *= nums[i];
+    }
+
+    let mut suffix = 1;
+    for i in (0..n).rev() {
+        res[i] *= suffix;
+        suffix *= nums[i];
+    }
+
+    res
+}
+
+/// 134. Gas Station
+/// 贪心：
+/// 1) 总油量 < 总消耗则无解
+/// 2) 扫描时一旦当前油量为负，起点更新到下一站
+pub fn can_complete_circuit(gas: Vec<i32>, cost: Vec<i32>) -> i32 {
+    let total: i32 = gas.iter().sum::<i32>() - cost.iter().sum::<i32>();
+    if total < 0 {
+        return -1;
+    }
+
+    let mut start = 0usize;
+    let mut tank = 0;
+    for i in 0..gas.len() {
+        tank += gas[i] - cost[i];
+        if tank < 0 {
+            start = i + 1;
+            tank = 0;
+        }
+    }
+
+    start as i32
 }
