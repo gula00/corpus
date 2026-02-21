@@ -20,3 +20,7 @@ path = "src/ownership.rs"
 [[bin]]
 name = "error_handling"
 path = "src/error_handling.rs"
+
+[[bin]]
+name = "leetcode"
+path = "src/leetcode.rs"
