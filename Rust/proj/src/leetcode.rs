@@ -279,3 +279,82 @@ pub fn can_complete_circuit(gas: Vec<i32>, cost: Vec<i32>) -> i32 {
 
     start as i32
 }
+
+/// 135. Candy
+/// 双向贪心：
+/// - 从左到右保证右边评分更高时糖果更多
+/// - 从右到左保证左边评分更高时糖果更多
+pub fn candy(ratings: Vec<i32>) -> i32 {
+    let n = ratings.len();
+    let mut candies = vec![1; n];
+
+    for i in 1..n {
+        if ratings[i] > ratings[i - 1] {
+            candies[i] = candies[i - 1] + 1;
+        }
+    }
+
+    for i in (0..n.saturating_sub(1)).rev() {
+        if ratings[i] > ratings[i + 1] {
+            candies[i] = candies[i].max(candies[i + 1] + 1);
+        }
+    }
+
+    candies.iter().sum()
+}
+
+/// 42. Trapping Rain Water
+/// 双指针：
+/// 哪边的当前高度更低，就由那边的最大高度决定可接水量
+pub fn trap(height: Vec<i32>) -> i32 {
+    if height.is_empty() {
+        return 0;
+    }
+
+    let (mut l, mut r) = (0usize, height.len() - 1);
+    let (mut left_max, mut right_max) = (0, 0);
+    let mut ans = 0;
+
+    while l < r {
+        if height[l] < height[r] {
+            left_max = left_max.max(height[l]);
+            ans += left_max - height[l];
+            l += 1;
+        } else {
+            right_max = right_max.max(height[r]);
+            ans += right_max - height[r];
+            r -= 1;
+        }
+    }
+
+    ans
+}
+
+/// 42. Trapping Rain Water（前后缀分解）
+/// left_max[i] / right_max[i] 分别表示 i 左右两侧（含 i）的最高柱
+pub fn trap_prefix_suffix(height: Vec<i32>) -> i32 {
+    let n = height.len();
+    if n == 0 {
+        return 0;
+    }
+
+    let mut left_max = vec![0; n];
+    let mut right_max = vec![0; n];
+
+    left_max[0] = height[0];
+    for i in 1..n {
+        left_max[i] = left_max[i - 1].max(height[i]);
+    }
+
+    right_max[n - 1] = height[n - 1];
+    for i in (0..n - 1).rev() {
+        right_max[i] = right_max[i + 1].max(height[i]);
+    }
+
+    let mut ans = 0;
+    for i in 0..n {
+        ans += left_max[i].min(right_max[i]) - height[i];
+    }
+
+    ans
+}
