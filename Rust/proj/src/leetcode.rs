@@ -358,3 +358,166 @@ pub fn trap_prefix_suffix(height: Vec<i32>) -> i32 {
 
     ans
 }
+
+/// 13. Roman to Integer
+/// 从右往左扫描：当前值 < 右侧值则减，否则加
+pub fn roman_to_int(s: String) -> i32 {
+    fn val(c: u8) -> i32 {
+        match c {
+            b'I' => 1,
+            b'V' => 5,
+            b'X' => 10,
+            b'L' => 50,
+            b'C' => 100,
+            b'D' => 500,
+            b'M' => 1000,
+            _ => 0,
+        }
+    }
+
+    let bytes = s.as_bytes();
+    let mut ans = 0;
+    let mut prev = 0;
+
+    for &ch in bytes.iter().rev() {
+        let cur = val(ch);
+        if cur < prev {
+            ans -= cur;
+        } else {
+            ans += cur;
+        }
+        prev = cur;
+    }
+
+    ans
+}
+
+/// 12. Integer to Roman
+/// 贪心：从大到小尝试匹配，能减就减并追加对应罗马字符
+pub fn int_to_roman(mut num: i32) -> String {
+    let vals = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+    let syms = [
+        "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I",
+    ];
+
+    let mut ans = String::new();
+    for i in 0..vals.len() {
+        while num >= vals[i] {
+            num -= vals[i];
+            ans.push_str(syms[i]);
+        }
+    }
+
+    ans
+}
+
+/// 58. Length of Last Word
+/// 从后往前：先跳过末尾空格，再统计最后一个单词长度
+pub fn length_of_last_word(s: String) -> i32 {
+    let bytes = s.as_bytes();
+    let mut i = bytes.len();
+
+    while i > 0 && bytes[i - 1] == b' ' {
+        i -= 1;
+    }
+
+    let mut len = 0;
+    while i > 0 && bytes[i - 1] != b' ' {
+        len += 1;
+        i -= 1;
+    }
+
+    len
+}
+
+/// 14. Longest Common Prefix
+/// 以前缀字符串为基准，不断缩短直到成为每个字符串的前缀
+pub fn longest_common_prefix(strs: Vec<String>) -> String {
+    if strs.is_empty() {
+        return String::new();
+    }
+
+    let mut prefix = strs[0].clone();
+    for s in strs.iter().skip(1) {
+        while !s.starts_with(&prefix) {
+            prefix.pop();
+            if prefix.is_empty() {
+                return prefix;
+            }
+        }
+    }
+
+    prefix
+}
+
+/// 151. Reverse Words in a String
+/// 按空白切分单词，反转后用单个空格拼接
+pub fn reverse_words(s: String) -> String {
+    let mut words: Vec<&str> = s.split_whitespace().collect();
+    words.reverse();
+    words.join(" ")
+}
+
+/// 6. Zigzag Conversion
+/// 按行模拟：维护当前行和方向（向下/向上）; 或者 iter
+pub fn convert(s: String, num_rows: i32) -> String {
+    let rows_count = num_rows as usize;
+    if rows_count <= 1 || s.len() <= rows_count {
+        return s;
+    }
+
+    let mut rows = vec![String::new(); rows_count];
+    let row_ids = (0..rows_count).chain((1..rows_count - 1).rev()).cycle();
+
+    for (ch, row) in s.chars().zip(row_ids) {
+        rows[row].push(ch);
+    }
+    // row_ids.zip(s.chars()).for_each(|(i, c)| rows[i].push(c));
+
+    rows.concat()
+}
+
+/// 28. Find the Index of the First Occurrence in a String
+/// 直接用标准库查找子串，找不到返回 -1
+pub fn str_str(haystack: String, needle: String) -> i32 {
+    haystack.find(&needle).map_or(-1, |idx| idx as i32)
+}
+
+/// 28. Find the Index of the First Occurrence in a String (KMP 简要实现)
+pub fn str_str_kmp(haystack: String, needle: String) -> i32 {
+    if needle.is_empty() {
+        return 0;
+    }
+
+    let s = haystack.as_bytes();
+    let p = needle.as_bytes();
+
+    let mut lps = vec![0usize; p.len()];
+    {
+        let mut j = 0usize;
+        for i in 1..p.len() {
+            while j > 0 && p[i] != p[j] {
+                j = lps[j - 1];
+            }
+            if p[i] == p[j] {
+                j += 1;
+            }
+            lps[i] = j;
+        }
+    }
+
+    let mut j = 0usize;
+    for (i, &ch) in s.iter().enumerate() {
+        while j > 0 && ch != p[j] {
+            j = lps[j - 1];
+        }
+        if ch == p[j] {
+            j += 1;
+        }
+        if j == p.len() {
+            return (i + 1 - p.len()) as i32;
+        }
+    }
+
+    -1
+}
